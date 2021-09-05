@@ -176,36 +176,48 @@ int getMinimumPenalty(std::string x, std::string y, int pxy, int pgap, int *xans
 	}
 
 	// calcuting the minimum penalty
-	
+	int di = 2, dj = 2;
 	int width = n + 1;
 	int height = m + 1;
 	
-	int diagonals = width + height;
-	i = 0, j = 2;
-	int ii,jj;
-	for(int d = 2 ; d < diagonals; ++d){
-		int length = min((d+1), height - i);
-		for(int iter = 0 ; iter < length; ++iter ){
-			ii = i + iter;
-			jj = j - iter;
+	int diagonals = 0;
 
-			if(ii > 0 && jj > 0){
-				if(x[ii-1] == y[jj-1]){
-					dp[ii][jj] = dp[ii-1][jj-1];
-				}else{
-					dp[ii][jj] = min3(
-						dp[ii-1][jj-1]+pxy, 
-						dp[ii - 1][jj] + pgap,
-						dp[ii][jj - 1] + pgap
-					);
+	diagonals = (width/dj) + (height/di);
+	diagonals += ((height% di) + (width %dj)) > 0 ? 1 : 0;
+
+
+	i = 0, j = 0;
+	int d, iter, length, imax, jmax, ii, jj, iii, jjj;
+	for(d = 0 ; d < diagonals; ++d){
+		length = min((d+1), height - i);
+		for(iter = 0 ; iter < length; ++iter ){
+			ii = i + iter*di;
+			jj = j - iter*dj;
+
+			imax = min(ii+di, height);
+			jmax = min(jj+dj, width);
+
+			for(iii = ii; iii < imax; iii++){
+				for(jjj = jj; jjj < jmax; jjj++){
+					if(iii > 0 && jjj > 0){
+						if(x[iii-1] == y[jjj-1]){
+							dp[iii][jjj] = dp[iii-1][jjj-1];
+						}else{
+							dp[iii][jjj] = min3(
+								dp[iii-1][jjj-1]+pxy, 
+								dp[iii - 1][jjj] + pgap,
+								dp[iii][jjj - 1] + pgap
+							);
+						}
+					}
 				}
 			}
 		}
 		
-		j++;
+		j += dj;
 		if( j >= width){
-			j = width - 1;
-			i++;
+			j = width - dj;
+			i += di;
 		}
 	}
 
