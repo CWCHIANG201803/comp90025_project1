@@ -9,8 +9,8 @@
 
 using namespace std;
 
-std::string getMinimumPenalties(std::string *genes, int k, int pxy, int pgap, int *penalties);
-int getMinimumPenalty(std::string x, std::string y, int pxy, int pgap, int *xans, int *yans);
+std::string getMinimumPenalties(std::string *genes, int k, int pxy, int pgap, int *penalties, int di, int dj);
+int getMinimumPenalty(std::string x, std::string y, int pxy, int pgap, int *xans, int *yans,int di, int dj);
 
 /*
 Examples of sha512 which returns a std::string
@@ -28,6 +28,8 @@ uint64_t GetTimeStamp() {
 }
 
 int main(int argc, char **argv){
+
+	int di, dj, cur;
 	int misMatchPenalty;
 	int gapPenalty;
 	int k;
@@ -39,16 +41,25 @@ int main(int argc, char **argv){
 		std::cin >> genes[i];
 	}
 
-	int numPairs= k*(k-1)/2;
+	di = 0, cur = 0;
+	while(argv[1][cur]){
+		di = di*10 + (argv[1][cur++]-'0');
+	}
 
+	dj = 0, cur = 0;
+	while(argv[2][cur]){
+		dj = dj*10 + (argv[2][cur++]-'0');
+	}
+
+	int numPairs= k*(k-1)/2;
 	int penalties[numPairs];
-		
+	
 	uint64_t start = GetTimeStamp ();
 
 	// return all the penalties and the hash of all allignments
 	std::string alignmentHash = getMinimumPenalties(genes,
 		k,misMatchPenalty, gapPenalty,
-		penalties);
+		penalties, di, dj);
 		
 	// print the time taken to do the computation
 	printf("Time: %ld us\n", (uint64_t) (GetTimeStamp() - start));
@@ -95,7 +106,7 @@ int **new2d (int width, int height)
 }
 
 std::string getMinimumPenalties(std::string *genes, int k, int pxy, int pgap,
-	int *penalties)
+	int *penalties, int di, int dj)
 {
 	int probNum=0;
 	std::string alignmentHash="";
@@ -107,7 +118,7 @@ std::string getMinimumPenalties(std::string *genes, int k, int pxy, int pgap,
 			int n = gene2.length(); // length of gene2
 			int l = m+n;
 			int xans[l+1], yans[l+1];
-			penalties[probNum]=getMinimumPenalty(gene1,gene2,pxy,pgap,xans,yans);
+			penalties[probNum]=getMinimumPenalty(gene1,gene2,pxy,pgap,xans,yans, di, dj);
 			// Since we have assumed the answer to be n+m long,
 			// we need to remove the extra gaps in the starting
 			// id represents the index from which the arrays
@@ -151,7 +162,7 @@ std::string getMinimumPenalties(std::string *genes, int k, int pxy, int pgap,
 
 // function to find out the minimum penalty
 // return the minimum penalty and put the aligned sequences in xans and yans
-int getMinimumPenalty(std::string x, std::string y, int pxy, int pgap, int *xans, int *yans)
+int getMinimumPenalty(std::string x, std::string y, int pxy, int pgap, int *xans, int *yans, int di, int dj)
 {
 	
 	int i, j; // intialising variables
@@ -176,7 +187,6 @@ int getMinimumPenalty(std::string x, std::string y, int pxy, int pgap, int *xans
 	}
 
 	// calcuting the minimum penalty
-	int di = 3, dj = 3;
 	int width = n + 1;
 	int height = m + 1;
 	
