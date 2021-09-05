@@ -176,20 +176,36 @@ int getMinimumPenalty(std::string x, std::string y, int pxy, int pgap, int *xans
 	}
 
 	// calcuting the minimum penalty
-	for (i = 1; i <= m; i++)
-	{
-		for (j = 1; j <= n; j++)
-		{
-			if (x[i - 1] == y[j - 1])
-			{
-				dp[i][j] = dp[i - 1][j - 1];
+	
+	int width = n + 1;
+	int height = m + 1;
+	
+	int diagonals = width + height;
+	i = 0, j = 2;
+	int ii,jj;
+	for(int d = 2 ; d < diagonals; ++d){
+		int length = min((d+1), height - i);
+		for(int iter = 0 ; iter < length; ++iter ){
+			ii = i + iter;
+			jj = j - iter;
+
+			if(ii > 0 && jj > 0){
+				if(x[ii-1] == y[jj-1]){
+					dp[ii][jj] = dp[ii-1][jj-1];
+				}else{
+					dp[ii][jj] = min3(
+						dp[ii-1][jj-1]+pxy, 
+						dp[ii - 1][jj] + pgap,
+						dp[ii][jj - 1] + pgap
+					);
+				}
 			}
-			else
-			{
-				dp[i][j] = min3(dp[i - 1][j - 1] + pxy ,
-						dp[i - 1][j] + pgap ,
-						dp[i][j - 1] + pgap);
-			}
+		}
+		
+		j++;
+		if( j >= width){
+			j = width - 1;
+			i++;
 		}
 	}
 
