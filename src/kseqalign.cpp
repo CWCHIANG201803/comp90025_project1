@@ -56,21 +56,29 @@ int main(int argc, char **argv){
 	
 	uint64_t start = GetTimeStamp ();
 
-	// return all the penalties and the hash of all allignments
-	std::string alignmentHash = getMinimumPenalties(genes,
-		k,misMatchPenalty, gapPenalty,
-		penalties, di, dj);
-		
-	// print the time taken to do the computation
-	printf("Time: %ld us\n", (uint64_t) (GetTimeStamp() - start));
-		
-	// print the alginment hash
-	std::cout<<alignmentHash<<std::endl;
-
-	for(int i=0;i<numPairs;i++){
-		std::cout<<penalties[i] << " ";
+	#pragma omp parallel
+	{
+		#pragma omp single
+		{
+			// return all the penalties and the hash of all allignments
+			std::string alignmentHash = getMinimumPenalties(genes,
+			k,misMatchPenalty, gapPenalty,
+			penalties, di, dj);
+			
+			// print the time taken to do the computation
+			printf("Time: %ld us\n", (uint64_t) (GetTimeStamp() - start));
+			
+			// print the alginment hash
+			std::cout<<alignmentHash<<std::endl;
+			for(int i=0;i<numPairs;i++){
+				std::cout<<penalties[i] << " ";
+			}
+			std::cout << std::endl;
+		}	
 	}
-	std::cout << std::endl;
+
+
+
 	return 0;
 }
 
@@ -104,6 +112,8 @@ int **new2d (int width, int height)
 
 	return dp;
 }
+
+
 
 std::string getMinimumPenalties(std::string *genes, int k, int pxy, int pgap,
 	int *penalties, int di, int dj)
@@ -143,10 +153,22 @@ std::string getMinimumPenalties(std::string *genes, int k, int pxy, int pgap,
 			{
 				align2.append(1,(char)yans[a]);
 			}
-			std::string align1hash = sw::sha512::calculate(align1);
-			std::string align2hash = sw::sha512::calculate(align2);
-			std::string problemhash = sw::sha512::calculate(align1hash.append(align2hash));
+			
+			std::string align1hash = "";
+			std::string align2hash = "";
+			std::string problemhash = "";
+
+			#pragma omp task shared(align1hash, align1)
+			align1hash = sw::sha512::calculate(align1);
+
+			#pragma omp task shared(align2hash, align2)
+			align2hash = sw::sha512::calculate(align2);
+
+			#pragma omp taskwait
+			problemhash = sw::sha512::calculate(align1hash.append(align2hash));
+
 			alignmentHash=sw::sha512::calculate(alignmentHash.append(problemhash));
+			
 			
 			// Uncomment for testing purposes
 			std::cout << penalties[probNum] << std::endl;
