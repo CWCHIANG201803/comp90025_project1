@@ -9,6 +9,7 @@ message("The cmake binary dir is ${CMAKE_BINARY_DIR}")
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O3")
 
 find_package(OpenMP)
 
