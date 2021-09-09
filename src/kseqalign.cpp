@@ -56,27 +56,20 @@ int main(int argc, char **argv){
 	
 	uint64_t start = GetTimeStamp ();
 
-	#pragma omp parallel
-	{
-		#pragma omp single
-		{
-			// return all the penalties and the hash of all allignments
-			std::string alignmentHash = getMinimumPenalties(genes,
-			k,misMatchPenalty, gapPenalty,
-			penalties, di, dj);
-			
-			// print the time taken to do the computation
-			printf("Time: %ld us\n", (uint64_t) (GetTimeStamp() - start));
-			
-			// print the alginment hash
-			std::cout<<alignmentHash<<std::endl;
-			for(int i=0;i<numPairs;i++){
-				std::cout<<penalties[i] << " ";
-			}
-			std::cout << std::endl;
-		}	
+	// return all the penalties and the hash of all allignments
+	std::string alignmentHash = getMinimumPenalties(genes,
+	k,misMatchPenalty, gapPenalty,
+	penalties, di, dj);
+	
+	// print the time taken to do the computation
+	printf("Time: %ld us\n", (uint64_t) (GetTimeStamp() - start));
+	
+	// print the alginment hash
+	std::cout<<alignmentHash<<std::endl;
+	for(int i=0;i<numPairs;i++){
+		std::cout<<penalties[i] << " ";
 	}
-
+	std::cout << std::endl;
 
 
 	return 0;
@@ -120,6 +113,7 @@ std::string getMinimumPenalties(std::string *genes, int k, int pxy, int pgap,
 {
 	int probNum=0;
 	std::string alignmentHash="";
+
 	for(int i=1;i<k;i++){
 		for(int j=0;j<i;j++){
 			std::string gene1 = genes[i];
@@ -149,6 +143,7 @@ std::string getMinimumPenalties(std::string *genes, int k, int pxy, int pgap,
 			{
 				align1.append(1,(char)xans[a]);
 			}
+
 			for (a = id; a <= l; a++)
 			{
 				align2.append(1,(char)yans[a]);
@@ -157,7 +152,6 @@ std::string getMinimumPenalties(std::string *genes, int k, int pxy, int pgap,
 			std::string align1hash = "";
 			std::string align2hash = "";
 			std::string problemhash = "";
-
 			#pragma omp task shared(align1hash, align1)
 			align1hash = sw::sha512::calculate(align1);
 
