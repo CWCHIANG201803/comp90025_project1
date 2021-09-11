@@ -2,7 +2,7 @@
 
 #SBATCH --partition=physical
 #SBATCH --constraint=physg5
-#SBATCH --time=01:40:00
+#SBATCH --time=01:10:00
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=32G
@@ -15,5 +15,5 @@ g++ -fopenmp -O3 -o project1_app ../src/kseqalign.cpp
 cd ..
 for idx in {1..5}
 do
-    cat ./data/mseq-big13-example.dat | ./build/project1_app 100 100
+    cat ./data/mseq-big13-example.dat | ./build/project1_app 500 500
 done
