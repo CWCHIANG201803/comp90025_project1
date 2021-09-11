@@ -41,10 +41,12 @@ int main(int argc, char **argv){
 		std::cin >> genes[i];
 	}
 
+
 	di = 0, cur = 0;
 	while(argv[1][cur]){
 		di = di*10 + (argv[1][cur++]-'0');
 	}
+
 
 	dj = 0, cur = 0;
 	while(argv[2][cur]){
@@ -53,6 +55,7 @@ int main(int argc, char **argv){
 
 	int numPairs= k*(k-1)/2;
 	int penalties[numPairs];
+	
 	
 	uint64_t start = GetTimeStamp ();
 
@@ -139,16 +142,19 @@ std::string getMinimumPenalties(std::string *genes, int k, int pxy, int pgap,
 			}
 			std::string align1="";
 			std::string align2="";
+			#pragma omp task shared(align1, xans, a, id, l)
 			for (a = id; a <= l; a++)
 			{
 				align1.append(1,(char)xans[a]);
 			}
 
+			#pragma omp task shared(align2, yans, a, id, l)
 			for (a = id; a <= l; a++)
 			{
 				align2.append(1,(char)yans[a]);
 			}
 			
+			#pragma omp taskwait
 			std::string align1hash = "";
 			std::string align2hash = "";
 			std::string problemhash = "";
@@ -193,10 +199,13 @@ int getMinimumPenalty(std::string x, std::string y, int pxy, int pgap, int *xans
 	memset (dp[0], 0, size);
 
 	// intialising the table
+	#pragma omp task shared(i, m, dp, pgap)
 	for (i = 0; i <= m; i++)
 	{
 		dp[i][0] = i * pgap;
 	}
+
+	#pragma omp task shared(i, m, dp, pgap)
 	for (i = 0; i <= n; i++)
 	{
 		dp[0][i] = i * pgap;
@@ -216,7 +225,7 @@ int getMinimumPenalty(std::string x, std::string y, int pxy, int pgap, int *xans
 	int d, iter, length, imax, jmax, ii, jj, iii, jjj;
 	for(d = 0 ; d < diagonals; ++d){
 		length = min((d+1), height - i);
-		#pragma omp parallel for schedule(guided) num_threads(length) shared(dp, i, j, width, height, length, di, dj) private(iii, jjj, ii, jj, imax, jmax, iter)
+		#pragma omp parallel for schedule(dynamic) num_threads(length) shared(dp, i, j, width, height, length, di, dj) private(iii, jjj, ii, jj, imax, jmax, iter)
 		for(iter = 0 ; iter < length; ++iter ){
 			ii = i + iter*di;
 			jj = j - iter*dj;
@@ -283,11 +292,15 @@ int getMinimumPenalty(std::string x, std::string y, int pxy, int pgap, int *xans
 			j--;
 		}
 	}
+
+	#pragma omp task shared(xpos, i, xans, x)
 	while (xpos > 0)
 	{
 		if (i > 0) xans[xpos--] = (int)x[--i];
 		else xans[xpos--] = (int)'_';
 	}
+
+	#pragma omp task shared(ypos, j, yans, y)
 	while (ypos > 0)
 	{
 		if (j > 0) yans[ypos--] = (int)y[--j];
@@ -296,8 +309,9 @@ int getMinimumPenalty(std::string x, std::string y, int pxy, int pgap, int *xans
 
 	int ret = dp[m][n];
 
+	#pragma omp taskwait
 	delete[] dp[0];
 	delete[] dp;
-	
+
 	return ret;
 }
