@@ -10,5 +10,4 @@
 
 module load gcc
 module load cmake
-
-cat ./data/mseq-big13-example.dat | ./build/project1_app 1000 1000
+for i in {1..10};do cat ./data/mseq-big13-example.dat | ./build/project1_app 1000 1000; done
