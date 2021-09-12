@@ -4,7 +4,7 @@
 #SBATCH --constraint=physg5
 #SBATCH --time=01:10:00
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=32
+#SBATCH --cpus-per-task=48
 #SBATCH --mem=32G
 #SBATCH --job-name=chaowei
 
