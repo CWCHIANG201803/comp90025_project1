@@ -15,5 +15,5 @@ g++ -fopenmp -O3 -o project1_app ../src/kseqalign.cpp
 cd ..
 for idx in {1..5}
 do
-    cat ./data/mseq-big13-example.dat | ./build/project1_app 1500 1500
+    cat ./data/mseq-big13-example.dat | ./build/project1_app 2500 2500
 done
