@@ -142,13 +142,14 @@ std::string getMinimumPenalties(std::string *genes, int k, int pxy, int pgap,
 			}
 			std::string align1="";
 			std::string align2="";
-			#pragma omp task shared(align1, xans, a, id, l)
+
+			#pragma omp task shared(align1, xans, id, l) firstprivate(a)
 			for (a = id; a <= l; a++)
 			{
 				align1.append(1,(char)xans[a]);
 			}
 
-			#pragma omp task shared(align2, yans, a, id, l)
+			#pragma omp task shared(align2, yans, id, l) firstprivate(a)
 			for (a = id; a <= l; a++)
 			{
 				align2.append(1,(char)yans[a]);
@@ -199,15 +200,17 @@ int getMinimumPenalty(std::string x, std::string y, int pxy, int pgap, int *xans
 	memset (dp[0], 0, size);
 
 	// intialising the table
-	#pragma omp task shared(i, m, dp, pgap)
+
+	#pragma omp taskloop private(i)
 	for (i = 0; i <= m; i++)
 	{
 		dp[i][0] = i * pgap;
 	}
 
-	#pragma omp task shared(i, m, dp, pgap)
+	#pragma omp taskloop private(i)
 	for (i = 0; i <= n; i++)
 	{
+
 		dp[0][i] = i * pgap;
 	}
 
@@ -293,14 +296,14 @@ int getMinimumPenalty(std::string x, std::string y, int pxy, int pgap, int *xans
 		}
 	}
 
-	#pragma omp task shared(xpos, i, xans, x)
+	#pragma omp task shared(xans, x, xpos, i) 
 	while (xpos > 0)
 	{
 		if (i > 0) xans[xpos--] = (int)x[--i];
 		else xans[xpos--] = (int)'_';
 	}
 
-	#pragma omp task shared(ypos, j, yans, y)
+	#pragma omp task shared(yans, y, ypos, j)
 	while (ypos > 0)
 	{
 		if (j > 0) yans[ypos--] = (int)y[--j];
