@@ -228,8 +228,11 @@ int getMinimumPenalty(std::string x, std::string y, int pxy, int pgap, int *xans
 	int d, iter, length, imax, jmax, ii, jj, iii, jjj;
 	for(d = 0 ; d < diagonals; ++d){
 		length = min((d+1), height - i);
-		#pragma omp parallel for schedule(dynamic) num_threads(length) shared(dp, i, j, width, height, length, di, dj) private(iii, jjj, ii, jj, imax, jmax, iter) proc_bind(close)
-		for(iter = 0 ; iter < length; ++iter ){
+		#pragma omp parallel num_threads(length) proc_bind(close)
+		{
+			omp_display_affinity(NULL);
+			#pragma omp parallel for schedule(dynamic) shared(dp, i, j, width, height, length, di, dj) private(iii, jjj, ii, jj, imax, jmax, iter) 
+			for(iter = 0 ; iter < length; ++iter ){
 			ii = i + iter*di;
 			jj = j - iter*dj;
 
@@ -252,7 +255,7 @@ int getMinimumPenalty(std::string x, std::string y, int pxy, int pgap, int *xans
 				}
 			}
 		}
-		
+		}
 		j += dj;
 		if( j >= width){
 			j = width - dj;
