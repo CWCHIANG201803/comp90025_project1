@@ -228,31 +228,34 @@ int getMinimumPenalty(std::string x, std::string y, int pxy, int pgap, int *xans
 	int d, iter, length, imax, jmax, ii, jj, iii, jjj;
 	for(d = 0 ; d < diagonals; ++d){
 		length = min((d+1), height - i);
-		#pragma omp parallel for schedule(dynamic) num_threads(length) shared(dp, i, j, width, height, length, di, dj) private(iii, jjj, ii, jj, imax, jmax, iter)
-		for(iter = 0 ; iter < length; ++iter ){
-			ii = i + iter*di;
-			jj = j - iter*dj;
+		#pragma omp parallel num_threads(length)
+		{
+			omp_display_affinity(NULL);
+			#pragma omp parallel for schedule(dynamic) shared(dp, i, j, width, height, length, di, dj) private(iii, jjj, ii, jj, imax, jmax, iter) 
+			for(iter = 0 ; iter < length; ++iter ){
+				ii = i + iter*di;
+				jj = j - iter*dj;
 
-			imax = std::min(ii+di, height);
-			jmax = std::min(jj+dj, width);
+				imax = std::min(ii+di, height);
+				jmax = std::min(jj+dj, width);
 
-			for(iii = ii; iii < imax; iii++){
-				for(jjj = jj; jjj < jmax; jjj++){
-					if(iii > 0 && jjj > 0){
-						if(x[iii-1] == y[jjj-1]){
-							dp[iii][jjj] = dp[iii-1][jjj-1];
-						}else{
-							dp[iii][jjj] = min3(
-								dp[iii-1][jjj-1]+pxy, 
-								dp[iii - 1][jjj] + pgap,
-								dp[iii][jjj - 1] + pgap
-							);
+				for(iii = ii; iii < imax; iii++){
+					for(jjj = jj; jjj < jmax; jjj++){
+						if(iii > 0 && jjj > 0){
+							if(x[iii-1] == y[jjj-1]){
+								dp[iii][jjj] = dp[iii-1][jjj-1];
+							}else{
+								dp[iii][jjj] = min3(
+									dp[iii-1][jjj-1]+pxy, 
+									dp[iii - 1][jjj] + pgap,
+									dp[iii][jjj - 1] + pgap
+								);
+							}
 						}
 					}
 				}
 			}
 		}
-		
 		j += dj;
 		if( j >= width){
 			j = width - dj;
