@@ -2,7 +2,7 @@
 
 #SBATCH --partition=physical
 #SBATCH --constraint=physg5
-#SBATCH --time=01:10:00
+#SBATCH --time=00:3:00
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=16
 #SBATCH --mem=32G
