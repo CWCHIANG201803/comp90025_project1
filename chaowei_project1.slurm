@@ -4,14 +4,14 @@
 #SBATCH --constraint=physg5
 #SBATCH --time=01:10:00
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=24
+#SBATCH --cpus-per-task=16
 #SBATCH --mem=32G
 #SBATCH --job-name=chaowei
 
 mkdir build
 module load gcc
 cd build
-g++ -fopenmp -O3 -o project1_app ../src/kseqalign.cpp
+g++ -fopenmp -lnuma -O3 -o project1_app ../src/kseqalign.cpp
 cd ..
 for idx in {1..5}
 do
